@@ -12,7 +12,8 @@ var myObject = {};
  * Démarre les TU
  * @param {Obecjt} options Tous les paramètres permettant de lancer les TU à savoir :
  *   - [String] description : Description des TU
- *   - [Object] subject : Objet à tester
+ *   - [String] root : Racine du namespace
+ *   - [Object] object : Objet à tester
  *   - [Object] dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
  *   - [Object] wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
  * @return {null}
@@ -20,8 +21,8 @@ var myObject = {};
 myObject.start = function(options) {
   describe(options.description, function() {
     myObject.mapKeys({
-      object: options.subject,
-      namespace: 'this',
+      object: options.object,
+      namespace: options.root,
       dataset: options.dataset,
       wrapper: options.wrapper
     });
@@ -32,7 +33,7 @@ myObject.start = function(options) {
  * Parcours les paramètres d'une vairiable à la recherche de propriétés de type Function
  * @param {Obecjt} options Tous les paramètres permettant de lancer les TU à savoir :
  *   - [String] namespace : Namespace de la fonction à tester
- *   - [Object] subject : Objet à parcourir
+ *   - [Object] object : Objet à parcourir
  *   - [Object] dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
  *   - [Object] wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
  * @return {null}
@@ -43,19 +44,22 @@ myObject.mapKeys = function(options) {
     // Pour chaque clé
     async.eachSeries(Object.keys(options.object), function(key, callback) {
       if (typeof options.object[key] === 'function') {
-        // Si c'est une fonction, on la test
-        myObject.run({
-          data: options.dataset[key],
-          fn: options.subject[key],
-          namespace: options.namespace + '.' + key,
-          wrapper: options.wrapper[key]
-        });
+        // Si c'est une fonction, on peut donc la tester
+        if (options.dataset) {
+          // Si un jeu de donnée est présent on lance le test
+          myObject.run({
+            data: options.dataset[key],
+            fn: options.object[key],
+            namespace: options.namespace + '.' + key,
+            wrapper: options.wrapper[key]
+          });
+        }
       } else {
         // Sinon, on le map à nouveau
         myObject.mapKeys({
           dataset: options.dataset[key],
           namespace: options.namespace + '.' + key,
-          object: options.subject[key],
+          object: options.object[key],
           wrapper: options.wrapper[key]
         });
       }
@@ -70,20 +74,16 @@ myObject.mapKeys = function(options) {
  * Parcours les paramètres d'une vairiable à la recherche de propriétés de type Function
  * @param {Obecjt} options Tous les paramètres permettant de lancer les TU à savoir :
  *   - [String] namespace : Namespace de la fonction à tester
- *   - [Object] subject : Objet à parcourir
- *   - [Object] dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
- *   - [Object] wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
+ *   - [Object] data : Données de test
+ *   - [Function] fn : Fonction à tester
+ *   - [Function] wrapper : Wrapper permettant d'appeler correctement la fonction à tester
  * @return {null}
  */
 myObject.run = function(options) {
-  if (typeof options.test === 'function') {
+  if (typeof options.fn === 'function') {
     describe('#' + options.namespace + '()', function() {
       async.eachSeries(options.data, function(item, callback) {
         it(item.label, function(done) {
-          // Transforme les string en regex si nécessaire
-          if (item.regExp) {
-            myObject.setRegex(item.regExp, item.options);
-          }
           // Ajoute le wrapper par défaut si nécessaire
           if (!options.wrapper) {
             options.wrapper = myObject.wrapper;
@@ -125,4 +125,4 @@ myObject.test = function(value, result) {
   return expect(value).to.equal(result.value);
 };
 
-module.exports = object;
+module.exports = myObject;
