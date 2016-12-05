@@ -55,13 +55,15 @@ myObject.mapKeys = function(options) {
           });
         }
       } else {
-        // Sinon, on le map à nouveau
-        myObject.mapKeys({
-          dataset: options.dataset[key],
-          namespace: options.namespace + '.' + key,
-          object: options.object[key],
-          wrapper: options.wrapper[key]
-        });
+        // Sinon, on essaye de le mapper à nouveau
+        if (typeof options.object[key] === 'object') {
+          myObject.mapKeys({
+            dataset: options.dataset[key],
+            namespace: options.namespace + '.' + key,
+            object: options.object[key],
+            wrapper: options.wrapper[key]
+          });
+        }
       }
       return callback();
     });
