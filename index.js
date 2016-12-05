@@ -88,8 +88,10 @@ myObject.run = function(options) {
           if (!options.wrapper) {
             options.wrapper = myObject.wrapper;
           }
-          myObject.test(options.wrapper(options.fn, item), item.result);
-          return done();
+          options.wrapper(options.fn, item, function(result){
+            myObject.test(result, item.result);
+            return done();
+          })
         });
         return callback();
       });
@@ -97,8 +99,8 @@ myObject.run = function(options) {
   }
 };
 
-myObject.wrapper = function(fn, item) {
-  return fn(item.arguments);
+myObject.wrapper = function(fn, item, cb) {
+  return cb(fn(item.arguments));
 };
 
 /**
