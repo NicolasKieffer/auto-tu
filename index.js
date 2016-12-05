@@ -116,16 +116,19 @@ myObject.wrapper = function(fn, item, cb) {
  */
 myObject.test = function(value, result) {
   if (result.not) {
-    // Si on doit tester que la valeur retournée n'est pas égale à
+    // Si on doit tester que la valeur retournée n'est pas égale au résultat
     return expect(value).to.not.equal(result.value);
   } else if (result.length) {
     // Si on doit tester la longueur la valeur retournée
     return expect(value).to.have.length(result.value);
   } else if (result.typeof) {
-    // Si on doit tester que le type de la valeur retournée n'est pas égale à
+    // Si on doit tester que le type de la valeur retournée n'est pas égale au résultat
     return expect(typeof result).to.equal(result.value);
+  } else if (result.include) {
+    // Si on doit tester que la valeur retournée soit inclue dans le résultat
+    return expect(result.value).include(value);
   }
-  // Si on doit tester que la valeur retournée est pas égale à
+  // Si on doit tester que la valeur retournée est égale au résultat
   return expect(value).to.equal(result.value);
 };
 
