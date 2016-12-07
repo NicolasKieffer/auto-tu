@@ -105,16 +105,17 @@ myObject.wrapper = function(fn, item, cb) {
   return cb(fn(item.arguments));
 };
 
+
 /**
  * Permet d'effecetuer le test correspondant au résultat souhaité (se base sur les propriétés de la variable résult)
  * @param {} value Valeur à tester, peut importe le type
  * @param {Object} result Variable indiquant le résultat souhaité :
- *   - [Boolean] not : Indique que l'on souhaite tester 'not.'
- *   - [Boolean] include : Indique que l'on souhaite tester 'include'
- *   - [Boolean] length : Indique que l'on souhaite tester 'to.have.length'
- *   - [Boolean] property : Indique que l'on souhaite tester 'to.have.property'
- *   - [Boolean] be : Indique que l'on souhaite tester 'to.be.a'
- *   - Par défaut, test de 'to.equal'
+ *   - not : Indique que l'on souhaite tester 'not.'
+ *   - include : Indique que l'on souhaite tester 'include'
+ *   - length : Indique que l'on souhaite tester 'to.have.length'
+ *   - property : Indique que l'on souhaite tester 'to.have.property'
+ *   - be : Indique que l'on souhaite tester 'to.be.a'
+ *   - equal : Indique que l'on souhaite tester de 'to.equal'
  * @return {Object} Résultat du test
  */
 myObject.test = function(value, result) {
@@ -124,14 +125,14 @@ myObject.test = function(value, result) {
   res = res.to;
   // Test que la valeur retournée n'est pas égale au résultat
   if (result.not) res = res.not;
-  // Test de la longueur
-  if (result.length) return res.have.length(result.value);
-  // Test de la propriété
-  if (result.property) return res.have.property(result.value);
-  // Test du type
-  if (result.be) return res.be.a(result.value);
   // Test de la valeur
-  return res.equal(result.value);
+  if (result.equal) return res.equal(result.equal);
+  // Test de la longueur
+  if (result.length) return res.have.length(result.length);
+  // Test de la propriété
+  if (result.property) return res.have.property(result.property);
+  // Test du type
+  if (result.be) return res.be.a(result.be);
 };
 
 module.exports = myObject;
