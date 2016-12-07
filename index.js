@@ -90,7 +90,7 @@ myObject.run = function(options) {
           if (!options.wrapper) {
             options.wrapper = myObject.wrapper;
           }
-          options.wrapper(options.fn, item, function(result){
+          options.wrapper(options.fn, item, function(result) {
             myObject.test(result, item.result);
             return done();
           })
@@ -109,27 +109,29 @@ myObject.wrapper = function(fn, item, cb) {
  * Permet d'effecetuer le test correspondant au résultat souhaité (se base sur les propriétés de la variable résult)
  * @param {} value Valeur à tester, peut importe le type
  * @param {Object} result Variable indiquant le résultat souhaité :
- *   - [Boolean] typeof : Indique que l'on souhaite tester le typeof du résultat
- *   - [Boolean] length : Indique que l'on souhaite tester 'have.length'
- *   - [Boolean] not : Indique que l'on souhaite tester 'not.equal'
+ *   - [Boolean] not : Indique que l'on souhaite tester 'not.'
+ *   - [Boolean] include : Indique que l'on souhaite tester 'include'
+ *   - [Boolean] length : Indique que l'on souhaite tester 'to.have.length'
+ *   - [Boolean] property : Indique que l'on souhaite tester 'to.have.property'
+ *   - [Boolean] be : Indique que l'on souhaite tester 'to.be.a'
+ *   - Par défaut, test de 'to.equal'
  * @return {Object} Résultat du test
  */
 myObject.test = function(value, result) {
-  if (result.not) {
-    // Si on doit tester que la valeur retournée n'est pas égale au résultat
-    return expect(value).to.not.equal(result.value);
-  } else if (result.length) {
-    // Si on doit tester la longueur la valeur retournée
-    return expect(value).to.have.length(result.value);
-  } else if (result.typeof) {
-    // Si on doit tester que le type de la valeur retournée n'est pas égale au résultat
-    return expect(typeof result).to.equal(result.value);
-  } else if (result.include) {
-    // Si on doit tester que la valeur retournée soit inclue dans le résultat
-    return expect(result.value).include(value);
-  }
-  // Si on doit tester que la valeur retournée est égale au résultat
-  return expect(value).to.equal(result.value);
+  var res = expect(value);
+  // Test que la valeur retournée est inclue dans le résultat
+  if (result.include) return res.include(value);
+  res = res.to;
+  // Test que la valeur retournée n'est pas égale au résultat
+  if (result.not) res = res.not;
+  // Test de la longueur
+  if (result.length) return res.have.length(result.value);
+  // Test de la propriété
+  if (result.property) return res.have.property(result.value);
+  // Test du type
+  if (result.be) return res.be.a(result.value);
+  // Test de la valeur
+  return res.equal(result.value);
 };
 
 module.exports = myObject;
