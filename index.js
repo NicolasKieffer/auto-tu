@@ -121,7 +121,7 @@ myObject.wrapper = function(fn, item, cb) {
 myObject.test = function(value, result) {
   var res = expect(value);
   // Test que la valeur retournée est inclue dans le résultat
-  if (result.include) return res.include(value);
+  if (result.include) return res.include(result.include);
   res = res.to;
   // Test que la valeur retournée n'est pas égale au résultat
   if (result.not) res = res.not;
