@@ -16,6 +16,7 @@ var myObject = {};
  *   - [Object] object : Objet à tester
  *   - [Object] dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
  *   - [Object] wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
+ * @param {Function} callback Callback qui devrait être appelée aprés le traitement (optionnel)
  * @return {null}
  */
 myObject.start = function(options) {
@@ -42,10 +43,10 @@ myObject.mapKeys = function(options) {
   // Si la propriété est un object, on le parcours
   if (typeof options.object === 'object') {
     // Pour chaque clé
-    async.eachSeries(Object.keys(options.object), function(key, callback) {
+    async.eachSeries(Object.keys(options.dataset), function(key, callback) {
       if (typeof options.object[key] === 'function') {
         // Si c'est une fonction, on peut donc la tester
-        if (options.dataset) {
+        if (options.object) {
           // Si un jeu de donnée est présent on lance le test
           myObject.run({
             data: options.dataset[key],
