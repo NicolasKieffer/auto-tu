@@ -5,7 +5,6 @@
 
 var async = require('async'),
   expect = require('chai').expect,
-  myObject
   child_process = require('child_process');
 
 var myObject = {};
