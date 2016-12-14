@@ -4,7 +4,8 @@
 'use strict';
 
 var async = require('async'),
-  expect = require('chai').expect;
+  expect = require('chai').expect,
+  child_process = require('child_process');
 
 var myObject = {};
 
@@ -106,9 +107,8 @@ myObject.wrapper = function(fn, item, cb) {
   return cb(fn(item.arguments));
 };
 
-
 /**
- * Permet d'effecetuer le test correspondant au résultat souhaité (se base sur les propriétés de la variable résult)
+ * Permet d'effectuer le test correspondant au résultat souhaité (se base sur les propriétés de la variable résult)
  * @param {} value Valeur à tester, peut importe le type
  * @param {Object} result Variable indiquant le résultat souhaité :
  *   - not : Indique que l'on souhaite tester 'not.'
@@ -134,6 +134,55 @@ myObject.test = function(value, result) {
   if (result.property) return res.have.property(result.property);
   // Test du type
   if (result.be) return res.be.a(result.be);
+};
+
+/**
+ * Permet de tester si le package est disponible sur la machine
+ * @param {String} package Nom du package à tester
+ * @param {Function} cb Callback permettant de récupérer le retour de la console.
+ *   function(err, res) {}
+ *   err : {Array} Erreur du process
+ *   res : {Object} Sorties standards de la console, sous la forme :
+ *       { stderr: [],
+ *         stdout: [] }
+ * @return {undefined} undefined
+ */
+myObject.which = function(pkg, cb) {
+  var res = {
+      stdout: [],
+      stderr: []
+    },
+    err = null;
+
+  // Spawn du process qui vérifie la présence du paquet
+  var xsltproc = child_process.spawn('which', [pkg], {
+    cwd: __dirname
+  });
+
+  // Write stdout in Logs
+  xsltproc.stdout.on('data', function(data) {
+    var str = data.toString();
+    res.stdout.push(str);
+  });
+
+  // Write stderr in Logs
+  xsltproc.stderr.on('data', function(data) {
+    var str = data.toString();
+    res.stderr.push(str);
+  });
+
+  // Write error process in Logs
+  xsltproc.on('error', function(data) {
+    var str = data.toString();
+    if (!err) err = [];
+    err.push(str);
+  });
+
+  // Send err/res to the callback
+  xsltproc.on('close', function(code) {
+    res.code = code;
+    return cb(err, res);
+  });
 };
 
 module.exports = myObject;
