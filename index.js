@@ -153,7 +153,7 @@ myObject.which = function(options) {
         err = null;
 
       // Spawn du process qui vérifie la présence du paquet
-      var child = child_process.spawn('which', item, {
+      var child = child_process.spawn('which', [item], {
         cwd: __dirname
       });
 
