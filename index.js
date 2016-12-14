@@ -5,6 +5,7 @@
 
 var async = require('async'),
   expect = require('chai').expect,
+  myObject
   child_process = require('child_process');
 
 var myObject = {};
@@ -137,51 +138,64 @@ myObject.test = function(value, result) {
 };
 
 /**
- * Permet de tester si le package est disponible sur la machine
- * @param {String} package Nom du package à tester
- * @param {Function} cb Callback permettant de récupérer le retour de la console.
- *   function(err, res) {}
- *   err : {Array} Erreur du process
- *   res : {Object} Sorties standards de la console, sous la forme :
- *       { stderr: [],
- *         stdout: [] }
+ * Permet de tester si le(s) package(s) est(sont) disponible(s) sur la machine
+ * @param {Object} options Variable indiquant les données suivantes :
+ *   - packages : {Array} Liste des noms de packages à tester
+ *   - label : {String} [Optional] Label du test
  * @return {undefined} undefined
  */
-myObject.which = function(pkg, cb) {
-  var res = {
-      stdout: [],
-      stderr: []
-    },
-    err = null;
+myObject.which = function(options) {
+  describe(options.label, function() {
+    async.eachSeries(options.packages, function(item, callback) {
+      var res = {
+          stdout: [],
+          stderr: []
+        },
+        err = null;
 
-  // Spawn du process qui vérifie la présence du paquet
-  var xsltproc = child_process.spawn('which', [pkg], {
-    cwd: __dirname
-  });
+      // Spawn du process qui vérifie la présence du paquet
+      var child = child_process.spawn('which', item, {
+        cwd: __dirname
+      });
 
-  // Write stdout in Logs
-  xsltproc.stdout.on('data', function(data) {
-    var str = data.toString();
-    res.stdout.push(str);
-  });
+      // Write stdout in Logs
+      child.stdout.on('data', function(data) {
+        var str = data.toString();
+        res.stdout.push(str);
+      });
 
-  // Write stderr in Logs
-  xsltproc.stderr.on('data', function(data) {
-    var str = data.toString();
-    res.stderr.push(str);
-  });
+      // Write stderr in Logs
+      child.stderr.on('data', function(data) {
+        var str = data.toString();
+        res.stderr.push(str);
+      });
 
-  // Write error process in Logs
-  xsltproc.on('error', function(data) {
-    var str = data.toString();
-    if (!err) err = [];
-    err.push(str);
-  });
+      // Write error process in Logs
+      child.on('error', function(data) {
+        var str = data.toString();
+        if (!err) err = [];
+        err.push(str);
+      });
 
-  // Send err/res to the callback
-  xsltproc.on('close', function(code) {
-    res.code = code;
-    return cb(err, res);
+      // On close of process
+      child.on('close', function(code) {
+        if (!err) {
+          it(item, function(done) {
+            myObject.test((res.stdout.length > 0), {
+              'equal': true
+            })
+            return done();
+          });
+        } else {
+          console.log({
+            'package': item,
+            'error': err,
+            'code': code
+          });
+        }
+      });
+      return callback();
+    });
   });
 };
 
