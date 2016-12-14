@@ -140,11 +140,12 @@ myObject.test = function(value, result) {
  * Permet de tester si le(s) package(s) est(sont) disponible(s) sur la machine
  * @param {Object} options Variable indiquant les données suivantes :
  *   - packages : {Array} Liste des noms de packages à tester
- *   - label : {String} [Optional] Label du test
+ *   - description : {String} [Optional] Description du test
  * @return {undefined} undefined
  */
 myObject.which = function(options) {
-  describe(options.label, function() {
+  var description = options.description || "Test la présence sur la machine des packages :"
+  describe(description, function() {
     async.eachSeries(options.packages, function(item, callback) {
       var res = {
           stdout: [],
@@ -183,12 +184,13 @@ myObject.which = function(options) {
             myObject.test((res.stdout.length > 0), {
               'equal': true
             })
-            return done();
+           return done();
           });
         } else {
           console.log({
             'package': item,
             'error': err,
+            'res': res,
             'code': code
           });
         }
