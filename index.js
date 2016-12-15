@@ -70,8 +70,6 @@ myObject.mapKeys = function(options) {
       return callback();
     });
   }
-  // Sinon on ne fait rien
-  return null;
 };
 
 /**
@@ -144,56 +142,56 @@ myObject.test = function(value, result) {
  * @return {undefined} undefined
  */
 myObject.which = function(options) {
-  var description = options.description || "Test la présence sur la machine des packages :"
+  var description = options.description || 'Test de la présence sur la machine du/des package(s) suivant(s) : ' + options.packages.join(', ')
   describe(description, function() {
     async.eachSeries(options.packages, function(item, callback) {
-      var res = {
-          stdout: [],
-          stderr: []
-        },
-        err = null;
+      it(item, function(done) {
+        var res = {
+            stdout: [],
+            stderr: []
+          },
+          err = null;
 
-      // Spawn du process qui vérifie la présence du paquet
-      var child = child_process.spawn('which', [item], {
-        cwd: __dirname
-      });
+        // Spawn du process qui vérifie la présence du paquet
+        var child = child_process.spawn('which', [item], {
+          cwd: __dirname
+        });
 
-      // Write stdout in Logs
-      child.stdout.on('data', function(data) {
-        var str = data.toString();
-        res.stdout.push(str);
-      });
+        // Write stdout in Logs
+        child.stdout.on('data', function(data) {
+          var str = data.toString();
+          res.stdout.push(str);
+        });
 
-      // Write stderr in Logs
-      child.stderr.on('data', function(data) {
-        var str = data.toString();
-        res.stderr.push(str);
-      });
+        // Write stderr in Logs
+        child.stderr.on('data', function(data) {
+          var str = data.toString();
+          res.stderr.push(str);
+        });
 
-      // Write error process in Logs
-      child.on('error', function(data) {
-        var str = data.toString();
-        if (!err) err = [];
-        err.push(str);
-      });
+        // Write error process in Logs
+        child.on('error', function(data) {
+          var str = data.toString();
+          if (!err) err = [];
+          err.push(str);
+        });
 
-      // On close of process
-      child.on('close', function(code) {
-        if (!err) {
-          it(item, function(done) {
+        // On close of process
+        child.on('close', function(code) {
+          if (!err) {
             myObject.test((res.stdout.length > 0), {
               'equal': true
-            })
-           return done();
-          });
-        } else {
-          console.log({
-            'package': item,
-            'error': err,
-            'res': res,
-            'code': code
-          });
-        }
+            });
+          } else {
+            console.log({
+              'package': item,
+              'error': err,
+              'res': res,
+              'code': code
+            });
+          }
+          return done();
+        });
       });
       return callback();
     });
