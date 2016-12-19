@@ -11,14 +11,14 @@ var myObject = {};
 
 /**
  * Démarre les TU
- * @param {Obecjt} options Tous les paramètres permettant de lancer les TU à savoir :
- *   - [String] description : Description des TU
- *   - [String] root : Racine du namespace
- *   - [Object] object : Objet à tester
- *   - [Object] dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
- *   - [Object] wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
- * @param {Function} callback Callback qui devrait être appelée aprés le traitement (optionnel)
- * @return {null}
+ * @param {object} options Tous les paramètres permettant de lancer les TU à savoir :
+ *   - {string} description : Description des TU
+ *   - {string} root : Racine du namespace
+ *   - {object} object : Objet à tester
+ *   - {object} dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
+ *   - {object} wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
+ * @param {function} callback Callback qui devrait être appelée aprés le traitement (optionnel)
+ * @return {undefined} Return undefined
  */
 myObject.start = function(options) {
   describe(options.description, function() {
@@ -33,12 +33,12 @@ myObject.start = function(options) {
 
 /**
  * Parcours les paramètres d'une vairiable à la recherche de propriétés de type Function
- * @param {Obecjt} options Tous les paramètres permettant de lancer les TU à savoir :
- *   - [String] namespace : Namespace de la fonction à tester
- *   - [Object] object : Objet à parcourir
- *   - [Object] dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
- *   - [Object] wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
- * @return {null}
+ * @param {object} options Tous les paramètres permettant de lancer les TU à savoir :
+ *   - {string} namespace : Namespace de la fonction à tester
+ *   - {object} object : Objet à parcourir
+ *   - {object} dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
+ *   - {object} wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
+ * @return {undefined} Return undefined
  */
 myObject.mapKeys = function(options) {
   // Si la propriété est un object, on le parcours
@@ -74,12 +74,12 @@ myObject.mapKeys = function(options) {
 
 /**
  * Parcours les paramètres d'une vairiable à la recherche de propriétés de type Function
- * @param {Obecjt} options Tous les paramètres permettant de lancer les TU à savoir :
- *   - [String] namespace : Namespace de la fonction à tester
- *   - [Object] data : Données de test
- *   - [Function] fn : Fonction à tester
- *   - [Function] wrapper : Wrapper permettant d'appeler correctement la fonction à tester
- * @return {null}
+ * @param {object} options Tous les paramètres permettant de lancer les TU à savoir :
+ *   - {string} namespace : Namespace de la fonction à tester
+ *   - {object} data : Données de test
+ *   - {function} fn : Fonction à tester
+ *   - {function} wrapper : Wrapper permettant d'appeler correctement la fonction à tester
+ * @return {undefined} Return undefined
  */
 myObject.run = function(options) {
   if (typeof options.fn === 'function') {
@@ -87,9 +87,8 @@ myObject.run = function(options) {
       async.eachSeries(options.data, function(item, callback) {
         it(item.label, function(done) {
           // Ajoute le wrapper par défaut si nécessaire
-          if (!options.wrapper) {
-            options.wrapper = myObject.wrapper;
-          }
+          if (!options.wrapper) options.wrapper = myObject.wrapper;
+          // Lancement du test
           options.wrapper(options.fn, item, function(result) {
             myObject.test(result, item.result);
             return done();
@@ -101,6 +100,14 @@ myObject.run = function(options) {
   }
 };
 
+/**
+ * Wrapper par défaut
+ * @param {function} fn Fonction à tester
+ * @param {object} item Item en cours
+ * @param {function} cb Callback appelée à la fin du traitement, avec comme paramètre disponible :
+ *  - {} value Valeur à tester
+ * @return {undefined} Return undefined
+ */
 myObject.wrapper = function(fn, item, cb) {
   return cb(fn(item.arguments));
 };
@@ -108,14 +115,14 @@ myObject.wrapper = function(fn, item, cb) {
 /**
  * Permet d'effectuer le test correspondant au résultat souhaité (se base sur les propriétés de la variable résult)
  * @param {} value Valeur à tester, peut importe le type
- * @param {Object} result Variable indiquant le résultat souhaité :
+ * @param {object} result Variable indiquant le résultat souhaité :
  *   - not : Indique que l'on souhaite tester 'not.'
  *   - include : Indique que l'on souhaite tester 'include'
  *   - length : Indique que l'on souhaite tester 'to.have.length'
  *   - property : Indique que l'on souhaite tester 'to.have.property'
  *   - be : Indique que l'on souhaite tester 'to.be.a'
  *   - equal : Indique que l'on souhaite tester de 'to.equal'
- * @return {Object} Résultat du test
+ * @return {object} Résultat du test
  */
 myObject.test = function(value, result) {
   var res = expect(value);
@@ -136,10 +143,10 @@ myObject.test = function(value, result) {
 
 /**
  * Permet de tester si le(s) package(s) est(sont) disponible(s) sur la machine
- * @param {Object} options Variable indiquant les données suivantes :
- *   - packages : {Array} Liste des noms de packages à tester
- *   - description : {String} [Optional] Description du test
- * @return {undefined} undefined
+ * @param {object} options Variable indiquant les données suivantes :
+ *   - packages : {array} Liste des noms de packages à tester
+ *   - description : {string} [Optional] Description du test
+ * @return {undefined} Return undefined
  */
 myObject.which = function(options) {
   var description = options.description || 'Test de la présence sur la machine du/des package(s) suivant(s) : ' + options.packages.join(', ')
@@ -151,31 +158,26 @@ myObject.which = function(options) {
             stderr: []
           },
           err = null;
-
         // Spawn du process qui vérifie la présence du paquet
         var child = child_process.spawn('which', [item], {
           cwd: __dirname
         });
-
         // Write stdout in Logs
         child.stdout.on('data', function(data) {
           var str = data.toString();
           res.stdout.push(str);
         });
-
         // Write stderr in Logs
         child.stderr.on('data', function(data) {
           var str = data.toString();
           res.stderr.push(str);
         });
-
         // Write error process in Logs
         child.on('error', function(data) {
           var str = data.toString();
           if (!err) err = [];
           err.push(str);
         });
-
         // On close of process
         child.on('close', function(code) {
           if (!err) {
