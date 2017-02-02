@@ -45,13 +45,13 @@ myObject.mapKeys = function(options) {
   if (typeof options.object === 'object') {
     // Pour chaque clé
     async.eachSeries(Object.keys(options.dataset), function(key, callback) {
+      // Si c'est une fonction, on peut donc la tester
       if (typeof options.object[key] === 'function') {
-        // Si c'est une fonction, on peut donc la tester
-        if (options.object) {
-          // Si un jeu de donnée est présent on lance le test
+        // Si un jeu de donnée est présent on lance le test
+        if (options.dataset[key]) {
           myObject.run({
             data: options.dataset[key],
-            fn: options.object[key],
+            fn: options.object[key].bind(options.object),
             namespace: options.namespace + '.' + key,
             wrapper: options.wrapper[key]
           });
