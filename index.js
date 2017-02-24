@@ -127,18 +127,18 @@ myObject.wrapper = function(fn, item, cb) {
 myObject.test = function(value, result) {
   var res = expect(value);
   // Test que la valeur retournée est inclue dans le résultat
-  if (result.include) return res.include(result.include);
+  if (typeof result.include !== 'undefined') return res.include(result.include);
   res = res.to;
   // Test que la valeur retournée n'est pas égale au résultat
-  if (result.not) res = res.not;
+  if (typeof result.not !== 'undefined') res = res.not;
   // Test de la valeur
-  if (result.equal) return res.equal(result.equal);
+  if (typeof result.equal !== 'undefined') return res.equal(result.equal);
   // Test de la longueur
-  if (result.length) return res.have.length(result.length);
+  if (typeof result.length !== 'undefined') return res.have.length(result.length);
   // Test de la propriété
-  if (result.property) return res.have.property(result.property);
+  if (typeof result.property !== 'undefined') return res.have.property(result.property);
   // Test du type
-  if (result.be) return res.be.a(result.be);
+  if (typeof result.be !== 'undefined') return res.be.a(result.be);
 };
 
 /**
