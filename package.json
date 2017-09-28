@@ -1,5 +1,5 @@
 {
-  "name": "rd-tu",
+  "name": "auto-tu",
   "version": "1.0.0",
   "description": "Moduile permettant d'automatiser les TU",
   "main": "index.js",
@@ -8,9 +8,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git.istex.fr/git/istex/rd-tu.git"
+    "url": "https://github.com/NicolasKieffer/auto-tu.git"
   },
-  "author": "istex-rd",
+  "author": "NicolasKieffer",
   "license": "ISC",
   "dependencies": {
     "async": "^2.1.4",
