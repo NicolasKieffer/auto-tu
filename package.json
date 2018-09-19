@@ -1,6 +1,6 @@
 {
   "name": "auto-tu",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Moduile permettant d'automatiser les TU",
   "main": "index.js",
   "scripts": {
