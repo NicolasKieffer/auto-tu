@@ -17,6 +17,8 @@ var myObject = {};
  *   - {object} object : Objet à tester
  *   - {object} dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
  *   - {object} wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
+ *   - {function} beforeEach : Fonction à exécuter avant chaque itération
+ *   - {function} afterEach : Fonction à exécuter après chaque itération
  * @param {function} callback Callback qui devrait être appelée aprés le traitement (optionnel)
  * @return {undefined} Return undefined
  */
@@ -26,7 +28,9 @@ myObject.start = function(options) {
       object: options.object,
       namespace: options.root,
       dataset: options.dataset,
-      wrapper: options.wrapper
+      wrapper: options.wrapper,
+      beforeEach: options.beforeEach,
+      afterEach: options.afterEach
     });
   });
 };
@@ -38,6 +42,8 @@ myObject.start = function(options) {
  *   - {object} object : Objet à parcourir
  *   - {object} dataset : Objet qui contient toutes les valeurs qui seront envoyées aux différentes fonctions à tester
  *   - {object} wrapper : Objet qui contient les wrapper à utilisé pour lancer le test sur la fonction
+ *   - {function} beforeEach : Fonction à exécuter avant chaque itération
+ *   - {function} afterEach : Fonction à exécuter après chaque itération
  * @return {undefined} Return undefined
  */
 myObject.mapKeys = function(options) {
@@ -53,7 +59,9 @@ myObject.mapKeys = function(options) {
             data: options.dataset[key],
             fn: options.object[key].bind(options.object),
             namespace: options.namespace + '.' + key,
-            wrapper: options.wrapper[key]
+            wrapper: options.wrapper[key],
+            beforeEach: options.beforeEach[key],
+            afterEach: options.afterEach[key]
           });
         }
       } else {
@@ -63,7 +71,9 @@ myObject.mapKeys = function(options) {
             dataset: options.dataset[key],
             namespace: options.namespace + '.' + key,
             object: options.object[key],
-            wrapper: options.wrapper[key]
+            wrapper: options.wrapper[key],
+            beforeEach: options.beforeEach[key],
+            afterEach: options.afterEach[key]
           });
         }
       }
@@ -79,11 +89,15 @@ myObject.mapKeys = function(options) {
  *   - {object} data : Données de test
  *   - {function} fn : Fonction à tester
  *   - {function} wrapper : Wrapper permettant d'appeler correctement la fonction à tester
+ *   - {function} beforeEach : Fonction à exécuter avant chaque itération
+ *   - {function} afterEach : Fonction à exécuter après chaque itération
  * @return {undefined} Return undefined
  */
 myObject.run = function(options) {
   if (typeof options.fn === 'function') {
     describe('#' + options.namespace + '()', function() {
+      if (typeof options.beforeEach === 'function') beforeEach(options.beforeEach);
+      if (typeof options.afterEach === 'function') afterEach(options.afterEach);
       async.eachSeries(options.data, function(item, callback) {
         it(item.label, function(done) {
           // Ajoute le wrapper par défaut si nécessaire
