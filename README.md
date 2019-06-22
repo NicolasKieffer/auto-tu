@@ -1,4 +1,4 @@
-rd-tu
+auto-tu
 ===============
 
-Module qui permet d'automatiser les TU
+Automatised Unit Tests module

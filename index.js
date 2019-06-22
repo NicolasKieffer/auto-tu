@@ -3,11 +3,11 @@
 /* jslint indent: 2 */
 'use strict';
 
-var async = require('async'),
+const async = require('async'),
   expect = require('chai').expect,
   child_process = require('child_process');
 
-var myObject = {};
+const myObject = {};
 
 /**
  * Démarre les TU
@@ -25,16 +25,16 @@ var myObject = {};
  * @return {undefined} Return undefined
  */
 myObject.start = function(options) {
-  describe(options.description, function() {
-    myObject.mapKeys({
-      object: options.object,
-      namespace: options.root,
-      dataset: options.dataset,
-      wrapper: options.wrapper,
-      beforeEach: (options.beforeEach) ? options.beforeEach : {},
-      afterEach: (options.afterEach) ? options.afterEach : {},
-      before: (options.before) ? options.before : {},
-      after: (options.after) ? options.after : {}
+  return describe(options.description, function() {
+    return myObject.mapKeys({
+      'object': options.object,
+      'namespace': options.root,
+      'dataset': options.dataset,
+      'wrapper': options.wrapper,
+      'beforeEach': options.beforeEach ? options.beforeEach : {},
+      'afterEach': options.afterEach ? options.afterEach : {},
+      'before': options.before ? options.before : {},
+      'after': options.after ? options.after : {}
     });
   });
 };
@@ -56,34 +56,34 @@ myObject.mapKeys = function(options) {
   // Si la propriété est un object, on le parcours
   if (typeof options.object === 'object') {
     // Pour chaque clé
-    async.eachSeries(Object.keys(options.dataset), function(key, callback) {
+    return async.eachSeries(Object.keys(options.dataset), function(key, callback) {
       // Si c'est une fonction, on peut donc la tester
       if (typeof options.object[key] === 'function') {
         // Si un jeu de donnée est présent on lance le test
         if (options.dataset[key]) {
           myObject.run({
-            data: options.dataset[key],
-            fn: options.object[key].bind(options.object),
-            namespace: options.namespace + '.' + key,
-            wrapper: options.wrapper[key],
-            beforeEach: (options.beforeEach[key]) ? options.beforeEach[key] : {},
-            afterEach: (options.afterEach[key]) ? options.afterEach[key] : {},
-            before: (options.before[key]) ? options.before[key] : {},
-            after: (options.after[key]) ? options.after[key] : {}
+            'data': options.dataset[key],
+            'fn': options.object[key].bind(options.object),
+            'namespace': options.namespace + '.' + key,
+            'wrapper': options.wrapper[key],
+            'beforeEach': options.beforeEach[key] ? options.beforeEach[key] : {},
+            'afterEach': options.afterEach[key] ? options.afterEach[key] : {},
+            'before': options.before[key] ? options.before[key] : {},
+            'after': options.after[key] ? options.after[key] : {}
           });
         }
       } else {
         // Sinon, on essaye de le mapper à nouveau
         if (typeof options.object[key] === 'object') {
           myObject.mapKeys({
-            dataset: options.dataset[key],
-            namespace: options.namespace + '.' + key,
-            object: options.object[key],
-            wrapper: options.wrapper[key],
-            beforeEach: (options.beforeEach[key]) ? options.beforeEach[key] : {},
-            afterEach: (options.afterEach[key]) ? options.afterEach[key] : {},
-            before: (options.before[key]) ? options.before[key] : {},
-            after: (options.after[key]) ? options.after[key] : {}
+            'dataset': options.dataset[key],
+            'namespace': options.namespace + '.' + key,
+            'object': options.object[key],
+            'wrapper': options.wrapper[key],
+            'beforeEach': options.beforeEach[key] ? options.beforeEach[key] : {},
+            'afterEach': options.afterEach[key] ? options.afterEach[key] : {},
+            'before': options.before[key] ? options.before[key] : {},
+            'after': options.after[key] ? options.after[key] : {}
           });
         }
       }
@@ -107,20 +107,20 @@ myObject.mapKeys = function(options) {
  */
 myObject.run = function(options) {
   if (typeof options.fn === 'function') {
-    describe('#' + options.namespace + '()', function() {
+    return describe('#' + options.namespace + '()', function() {
       if (typeof options.beforeEach === 'function') beforeEach(options.beforeEach);
       if (typeof options.afterEach === 'function') afterEach(options.afterEach);
       if (typeof options.before === 'function') before(options.before);
       if (typeof options.after === 'function') after(options.after);
-      async.eachSeries(options.data, function(item, callback) {
-        it(item.label, function(done) {
+      return async.eachSeries(options.data, function(item, callback) {
+        return it(item.label, function(done) {
           // Ajoute le wrapper par défaut si nécessaire
           if (!options.wrapper) options.wrapper = myObject.wrapper;
           // Lancement du test
-          options.wrapper(options.fn, item, function(result) {
+          return options.wrapper(options.fn, item, function(result) {
             myObject.test(result, item.result);
             return done();
-          })
+          });
         });
         return callback();
       });
@@ -153,7 +153,7 @@ myObject.wrapper = function(fn, item, cb) {
  * @return {object} Résultat du test
  */
 myObject.test = function(value, result) {
-  var res = expect(value);
+  let res = expect(value);
   // Test que la valeur retournée est inclue dans le résultat
   if (typeof result.include !== 'undefined') return res.include(result.include);
   res = res.to;
@@ -177,39 +177,41 @@ myObject.test = function(value, result) {
  * @return {undefined} Return undefined
  */
 myObject.which = function(options) {
-  var description = options.description || 'Test de la présence sur la machine du/des package(s) suivant(s) : ' + options.packages.join(', ')
-  describe(description, function() {
-    async.eachSeries(options.packages, function(item, callback) {
-      it(item, function(done) {
-        var res = {
+  let description =
+    options.description ||
+    'Test de la présence sur la machine du/des package(s) suivant(s) : ' + options.packages.join(', ');
+  return describe(description, function() {
+    return async.eachSeries(options.packages, function(item, callback) {
+      return it(item, function(done) {
+        let res = {
             stdout: [],
             stderr: []
           },
           err = null;
         // Spawn du process qui vérifie la présence du paquet
-        var child = child_process.spawn('which', [item], {
+        let child = child_process.spawn('which', [item], {
           cwd: __dirname
         });
         // Write stdout in Logs
         child.stdout.on('data', function(data) {
-          var str = data.toString();
+          let str = data.toString();
           res.stdout.push(str);
         });
         // Write stderr in Logs
         child.stderr.on('data', function(data) {
-          var str = data.toString();
+          let str = data.toString();
           res.stderr.push(str);
         });
         // Write error process in Logs
         child.on('error', function(data) {
-          var str = data.toString();
+          let str = data.toString();
           if (!err) err = [];
           err.push(str);
         });
         // On close of process
         child.on('close', function(code) {
           if (!err) {
-            myObject.test((res.stdout.length > 0), {
+            myObject.test(res.stdout.length > 0, {
               'equal': true
             });
           } else {
