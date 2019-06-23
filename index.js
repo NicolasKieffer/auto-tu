@@ -113,7 +113,7 @@ myObject.run = function(options) {
       if (typeof options.before === 'function') before(options.before);
       if (typeof options.after === 'function') after(options.after);
       return async.eachSeries(options.data, function(item, callback) {
-        return it(item.label, function(done) {
+        it(item.label, function(done) {
           // Ajoute le wrapper par défaut si nécessaire
           if (!options.wrapper) options.wrapper = myObject.wrapper;
           // Lancement du test
@@ -182,7 +182,7 @@ myObject.which = function(options) {
     'Test de la présence sur la machine du/des package(s) suivant(s) : ' + options.packages.join(', ');
   return describe(description, function() {
     return async.eachSeries(options.packages, function(item, callback) {
-      return it(item, function(done) {
+      it(item, function(done) {
         let res = {
             stdout: [],
             stderr: []
